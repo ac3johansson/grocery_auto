@@ -1,0 +1,46 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+
+/* Centering the table */
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 100vh; /* Ensures full height */
+    margin-top: -100px; /* Moves everything up */
+}
+
+
+
+/* Table Styling */
+table {
+    width: 80%; /* Adjust size (try 60-90%) */
+    max-width: 600px; /* Limits table size */
+    border-collapse: collapse;
+    background-color: #f8f9fa; /* Light background */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds shadow */
+}
+
+/* Styling table headers and cells */
+th, td {
+    border: 2px solid #000; /* Black borders */
+    padding: 12px; /* Bigger padding */
+    text-align: center; /* Center text */
+    font-size: 18px; /* Increase font size */
+}
+
+/* Header row styling */
+th {
+    background-color: #343a40; /* Dark header */
+    color: white;
+}
+
+/* Alternating row colors */
+tr:nth-child(even) {
+    background-color: #e9ecef;
+}
+
