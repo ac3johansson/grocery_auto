@@ -48,8 +48,6 @@ class MonthlyPlan:
         return tagList
     
 
-
-
     #Samla alla ingredienser och mängd till inköpslista (HÄR SLUTADE JAG)
     def shoppingList(self):
         ingredients = {}
