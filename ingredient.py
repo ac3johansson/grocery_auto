@@ -1,7 +1,9 @@
 
 class Ingredient:
-    unitsWeight = {'g':1, 'hg':100, 'kg':1000} #Godkända viktenheter
-    unitsVolume = {'krm':1, 'tsk':5, 'msk':15, 'ml':1, 'cl':10, 'dl':100, 'l':1000} #Godkända volymenheter
+    unitsWeight = {'g':1, 'hg':100, 'kg':1000} #Valid weight units
+    unitsVolume = {'krm':1, 'tsk':5, 'msk':15, 'ml':1, 'cl':10, 'dl':100, 'l':1000} #Valid volume units
+    #Also 'st' is valid but don't need dictionary for that
+
 
     # Specification of a ingredient. 
     # name - The name of the ingredient
