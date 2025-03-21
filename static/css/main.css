@@ -11,9 +11,9 @@ body {
     align-items: center;
     flex-direction: column;
     min-height: 100vh; /* Ensures full height */
-    margin-top: -100px; /* Moves everything up */
+    /*margin-top: -100px; /* Moves everything up */
+    margin-bottom: 50px;
 }
-
 
 
 /* Table Styling */
