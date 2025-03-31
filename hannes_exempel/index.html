@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Cards</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Optionally include a custom CSS file for additional styling -->
+    <style>
+        .recipe-card {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <h1 class="text-center mb-4">Recipe Collection</h1>
+        <div class="row" id="recipe-grid"></div>
+    </div>
+
+    <!-- Include Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="data.js"></script>
+    <!-- JavaScript to handle JSON data and rendering -->
+    <script>
+        
+        function renderRecipes() {
+            const recipeGrid = document.getElementById('recipe-grid');
+            data.recipes.forEach(recipe => {
+                const card = document.createElement('div');
+                card.classList.add('col-12');
+                card.classList.add('col-sm-6');
+                card.classList.add('col-md-4');
+                let ingredientsList = '';
+
+                // Loop through the ingredients and create a list item for each
+                recipe.ingredienser.forEach(ingredient => {
+                    ingredientsList += `<li class="list-group-item p-0 py-1"><small>${ingredient.antal ? ingredient.antal + ' ' + ingredient.enhet : ''} ${ingredient.vad}</small></li>`;
+                });
+
+                card.innerHTML = `
+                <div class="card recipe-card">
+                    <img class="card-img-top" src="${recipe.image}" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">${recipe.name}</h5>
+                        <p class="card-text">${recipe.description}</p>
+                        <h6>Ingredients:</h6>
+                        <ul class="list-group list-group-flush">
+                                ${ingredientsList}
+                            </ul>
+                            <a href="${recipe.url}" class="card-link" target="_blank">View Recipe</a>
+                        </div>
+                    </div>
+                `;
+                recipeGrid.appendChild(card);
+            });
+        }
+
+        // Run renderRecipes when the page loads
+        window.onload = renderRecipes;
+    </script>
+</body>
+</html>
