@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block head %} 
+<title></title>
+{% endblock %}
+
+{% block body %} 
+<div class="content">
+    <h1>Ingredienser</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class=flashes>
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <form action="/user/{{user.id}}/recipebank/{{recipe.id}}/ingredients" method="POST">
+        <input type="text" name="name" placeholder="Ingrediens" required>
+        <input type="text" name="amount" placeholder="Mängd" required>  
+        <select name="unit" required>
+            <option value="" disabled selected>Enhet</option>
+            <option value="st">st</option>
+            <option value="g">g</option>
+            <option value="hg">hg</option>
+            <option value="kg">kg</option>
+            <option value="ml">ml</option>
+            <option value="cl">cl</option>
+            <option value="dl">dl</option>
+            <option value="l">l</option>
+        </select>
+        <button type="submit" name="action" value="add">Lägg till</button>
+    </form>
+    {% if ingredients|length < 1 %}
+    <h4 style="text-align: center">Inga tillagda ingredienser</h4>
+    {% else %}
+    <table border="1">
+        <tr>
+            <th>Namn</th>
+            <th>Mängd</th>
+            <th>Åtgärder</th>
+        </tr>
+        {% for ingredient in ingredients %}
+            <tr>
+                <td>{{ ingredient.name }}</td>
+                <td>{{ ingredient.amount ~ ingredient.unit }} </td>
+                <td>
+                    <form action="/user/{{user.id}}/recipebank/{{recipe.id}}/ingredients" method="POST">
+                        <input type="hidden" name="ingredient_id" value="{{ ingredient.id }}">
+                        
+                        <select name="action" onchange="this.form.submit()">
+                            <option value="" disabled selected>Ändra enhet</option>
+                            <option value="st">st</option>
+                            <option value="g">g</option>
+                            <option value="hg">hg</option>
+                            <option value="kg">kg</option>
+                            <option value="ml">ml</option>
+                            <option value="cl">cl</option>
+                            <option value="dl">dl</option>
+                            <option value="l">l</option>
+                        </select>
+                    </form>
+                    <br>
+                    <form action="/user/{{user.id}}/recipebank/{{recipe.id}}/ingredients" method="POST">
+                        <input type="hidden" name="ingredient_id" value="{{ ingredient.id }}">
+                        <button type="submit" name="action" value="remove">Ta bort</button>
+                    </form>
+                    <br>
+                    <a href="/edit/{{recipe.id}}">Redigera recept</a>
+                </td>
+            </tr> 
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    <a href="{{ prev_url or url_for('routes.index') }}" class="btn">Tillbaka</a>
+</div>
+
+{% endblock %}

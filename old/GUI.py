@@ -2,7 +2,7 @@ import pandas as pd
 import tkinter as tk
 from tkinter import simpledialog
 from tkinter import ttk
-import recipeBank as st
+import oldclasses.recipeBank as st
 
 
 

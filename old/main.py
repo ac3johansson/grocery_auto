@@ -1,9 +1,9 @@
-import recipeBank as st
+import oldclasses.recipeBank as st
 import numpy as np
 import sys
-from recipe import Recipe
-from ingredient import Ingredient
-from recipeBank import RecipeBank
+from oldclasses.recipe import Recipe
+from oldclasses.ingredient import Ingredient
+from oldclasses.recipeBank import RecipeBank
 
 #import tkinter
 #print(tkinter.TkVersion)

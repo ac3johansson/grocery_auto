@@ -1,4 +1,4 @@
-from ingredient import Ingredient
+from old.ingredient import Ingredient
 
 class Recipe:
 

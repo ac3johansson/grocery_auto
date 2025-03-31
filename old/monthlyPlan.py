@@ -1,6 +1,6 @@
-from recipeBank import RecipeBank
-from recipe import Recipe
-from ingredient import Ingredient
+from oldclasses.recipeBank import RecipeBank
+from oldclasses.recipe import Recipe
+from oldclasses.ingredient import Ingredient
 import random
 
 #Vill få ut:

@@ -1,38 +1,55 @@
 {% extends 'base.html' %}
 
 {% block head %} 
-<title>Task Master</title>
+<title></title>
 {% endblock %}
 
 {% block body %} 
 <div class="content">
-    <h1>Task Master</h1>
-    {% if tasks|length < 1 %}
-    <h4 style="text-align: center">There are no tasks. Create one below!</h4>
+    <h1>Användare</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class=flashes>
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}   
+    <form action="/" method="POST">
+        <input type="text" name="add_username" placeholder="Användarnamn" required>
+        <button type="submit" name="action" value="add">Lägg till</button>
+    </form>
+    
+    {% if users|length < 1 %}
+    <h4 style="text-align: center">Det finns inga användare registrerade</h4>
     {% else %}
     <table border="1">
         <tr>
-            <th>Task</th>
-            <th>Added</th>
-            <th>Actions</th>
+            <th>Användare</th>
+            <th>----</th>
+            <th>Åtgärder</th>
         </tr>
-        {% for task in tasks %}
+        {% for user in users %}
             <tr>
-                <td>{{ task.content }}</td>
-                <td>{{ task.date_created.date() }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.username }}</td>
                 <td>
-                    <a href="/delete/{{task.id}}">Delete</a>
+                    <a href="/user/{{user.id}}/recipebank">Receptbank</a>
                     <br>
-                    <a href="/update/{{task.id}}">Update</a>
+                    <a href="/user/{{user.id}}/planmaker">Månadsplan</a>
+                    <br>
+                    <a href="/user/{{user.id}}/edit">Redigera</a>
                 </td>
             </tr> 
         {% endfor %}
     </table>
-    {% endif %}
     <form action="/" method="POST">
-        <input type="text" name="content" id="content">
-        <input type="submit" value="Add Task">
+        <input type="text" name="remove_username" placeholder="Användarnamn" required>
+        <button type="submit" name="action" value="remove">Ta bort</button>
     </form>
+    {% endif %}
+
 
 </div>
 

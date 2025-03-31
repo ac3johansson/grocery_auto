@@ -1,7 +1,7 @@
 import csv
 import os
-from recipe import Recipe
-from ingredient import Ingredient
+from old.recipe import Recipe
+from old.ingredient import Ingredient
 #import json
 
 class RecipeBank:
