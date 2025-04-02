@@ -6,7 +6,9 @@
 
 {% block body %} 
 <div class="content">
-    <h1>Dina recept</h1>
+    <h1></h1>
+
+    <!-- Makes it possible to show flash() messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <ul class=flashes>
@@ -17,7 +19,7 @@
         {% endif %}
     {% endwith %}
     <form  method="POST">
-        <input type="text" name="name" placeholder="Receptnamn" required>
+        <input type="text" name="name" placeholder="Plannamn" required>
         <input type="text" name="link" placeholder="Länk" required>
         <select name="tag" placeholder="Tag" required>
             <option value="" disabled selected>Tag</option>
@@ -25,36 +27,35 @@
             <option value="vardag">Vardag</option>
             <option value="helg">Helg</option>
         </select>
-        <!-- <input type="text" name="tag" placeholder="Tag" required> -->
-        <button type="submit" name="action" value="add">Lägg till</button>
+        <input type="text" name="tag" placeholder="Tag" required>
+        <button type="submit" name="action" value="search">Sök</button>
     </form>
-    {% if recipes|length < 1 %}
+    {% if plans|length < 1 %}
     <h4 style="text-align: center">Inga tillagda recept</h4>
     {% else %}
     <table border="1">
         <tr>
             <th>Namn</th>
-            <th>Länk</th>
-            <th>Tag</th>
+            <th>Skapad</th>
             <th>Åtgärder</th>
         </tr>
-        {% for recipe in recipes %}
+        {% for plan in plans %}
             <tr>
-                <td>{{ recipe.name }}</td>
-                <td><a href="{{ 'https://' + recipe.link if not recipe.link.startswith('http') else recipe.link }}" 
-                    target="_blank" rel="noopener noreferrer">
-                    Gå till receptet
-                 </a></td>
-                <td>{{ recipe.tag }}</td>
+                <td>{{ plan.name }}</td>
+                <td>{{ plan.date_created }}</td>
                 <td>
-                    <a href="/user/{{user.id}}/recipebank/{{recipe.id}}/ingredients">Ingredienser</a>
+                    <!-- <a href="/user/{{user.id}}/planbank">Ingredienser</a>
                     <br>
-                    <form action="/user/{{user.id}}/recipebank" method="POST">
-                        <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+                    <form action="/user/{{user.id}}/planbank" method="POST">
+                        <input type="hidden" name="plan_id" value="{{ plan.id }}">
                         <button type="submit" name="action" value="remove">Ta bort</button>
                     </form>
-                    <br>
-                    <a href="/edit/{{recipe.id}}">Redigera recept</a>
+                    <br> -->
+                    <a href="/edit/{{plan.id}}">Redigera plan</a>
+                    <form action="/user/{{user.id}}/planbank" method="POST">
+                        <input type="hidden" name="plan_id" value="{{ plan.id }}">
+                        <button type="submit" name="action" value="remove">Ta bort</button>
+                    </form>
                 </td>
             </tr> 
         {% endfor %}

@@ -3,62 +3,32 @@ from models.recipe import Recipe
 from models.ingredient import Ingredient
 from models import db
 
-def add_ingredient(recipe_id, ingredient_name, amount, unit):
-    recipe = Recipe.query.get(recipe_id)
-
-    if not recipe:
-        return "Recipe not found"
-    if unit not in (Ingredient.unitsVolume or Ingredient.unitsWeight) or unit == 'st':
-        return "Unit not found"
-    
-    new_ingredient = Ingredient.query.filter_by(name=ingredient_name).first()
-
-    if not new_ingredient:
-        new_ingredient = Ingredient(name=ingredient_name, amount=amount, unit=unit, recipe=recipe)
-        try: 
-            db.session.add(new_ingredient)
+def add_recipe(user_id, recipe_name, recipe_link, recipe_tag):
+    if recipe_name and recipe_link and recipe_tag:
+        new_recipe = Recipe(name=recipe_name, link=recipe_link, tag=recipe_tag, user_id=user_id)
+        try:
+            db.session.add(new_recipe)
             db.session.commit()
-            flash(f"Added {ingredient_name} to {recipe.name}")
-            return redirect(f'/user/{user_id}/recipebank')
+            flash('Receptet tillagt', 'success')
         except:
-            flash("Kunde inte lägga till recept")
-            return redirect(f'/user/{user_id}/recipebank')
+            flash('Kunde inte lägga till recept', 'error')
     else:
-        if new_ingredient.unit == unit:
-            new_ingredient.amount = new_ingredient.amount + amount
-        else: 
-            new_ingredient.amount = new_ingredient.amount + amount * convert_unit(unit, new_ingredient.unit)
+        flash('Kunde inte lägga till recept', 'error')
+    return redirect(f'/user/{user_id}/recipebank')
+
+def remove_recipe(user_id, recipe_id):
+    try:
+        db.session.delete(Recipe.query.get(recipe_id))
         db.session.commit()
-        return f"Uppdated {ingredient_name} amount in {recipe.name}"
+    except:
+        flash("Receptet kunde ej tas bort")
+    return redirect(f'/user/{user_id}/recipebank')
 
-
-
-#Modify amount of ingredient
-def edit_ingredient_amount():
+def find_by_name(user_id, recipe_name):
     pass
 
-#Remove the ingredient from recipe
-def remove_ingredient(recipe_id, ingredient_name):
+def find_by_ingredient(user_id, recipe_ingredient):
     pass
 
-def convert_unit(fromUnit, toUnit):
-    fromUnit = str(fromUnit).lower().strip()
-    toUnit = str(toUnit).lower().strip()
-    if (fromUnit and toUnit) in Ingredient.unitsVolume:
-        return Ingredient.unitsVolume[fromUnit] / Ingredient.unitsVolume[toUnit]
-    elif (fromUnit and toUnit) in Ingredient.unitsWeight:
-        return Ingredient.unitsWeight[fromUnit] / Ingredient.unitsWeight[toUnit]
-    elif (fromUnit or toUnit) == 'st':
-        #HUR SKA ERRORS HANTERAS?
-        raise ValueError("Kan inte konventera till/från st")
-    else: 
-        #HUR SKA ERRORS HANTERAS?
-        raise ValueError("Enhet finns ej dokumenterad")
-    
-#Ändrar dokumenterad enhet. OBS! konventera enheten innan ändring. 
-def change_unit(newUnit, ingredient_id):
-    if (newUnit in (Ingredient.unitsWeight or Ingredient.unitsVolume)) or newUnit == 'st':
-        #self.unit = newUnit
-        Ingredient.query.get(ingredient_id).unit = newUnit
-    else:
-        raise ValueError("Enheten finns ej dokumenterad")
+def find_by_tag(user_id, recipe_tag):
+    pass
