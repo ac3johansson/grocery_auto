@@ -80,6 +80,13 @@
                                 <th>Namn</th>
                                 <th>Mängd</th>
                                 <th>Åtgärder</th>
+                                <th>
+                                    <form id="submit-form" method="POST" action="">
+                                    <!-- This hidden input will hold the selected IDs as a comma-separated string -->
+                                    <input type="hidden" name="selected_ingredients" id="selected-ingredients">
+                                    <button type="submit" class="btn btn-sm btn-warning w-100">Slå ihop</button>
+                                  </form>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -105,12 +112,20 @@
                                                     <option value="l">l</option>
                                                 </select>
                                             </form>
-                                            <form action="/user/{{user.id}}/recipebank/{{recipe.id}}/ingredients" method="POST" class="d-inline">
+                                            <td>
+                                                <div class="checkbox-box">
+                                                    <label>
+                                                        <input type="checkbox" class="merge-checkbox" value="ingredient_{{ingredient.id}}">
+                                                    </label>
+                                                </div> 
+                                            </td>
+
+                                            <!-- <form action="/user/{{user.id}}/recipebank/{{recipe.id}}/ingredients" method="POST" class="d-inline">
                                                 <input type="hidden" name="ingredient_id" value="{{ ingredient.id }}">
                                                 <button type="submit" name="action" value="remove" class="btn btn-sm btn-danger">
                                                     Ta bort
                                                 </button>
-                                            </form>
+                                            </form> -->
                                         </div>
                                     </td>
                                 </tr> 
@@ -136,4 +151,18 @@
         select.style.width = '100%';
     });
 </script>
+<script>
+    document.getElementById('submit-form').addEventListener('submit', function(event) {
+      const checkboxes = document.querySelectorAll('.merge-checkbox');
+      const selected = [];
+  
+      checkboxes.forEach(cb => {
+        if (cb.checked) {
+          selected.push(cb.value);
+        }
+      });
+  
+      document.getElementById('selected-ingredients').value = selected.join(',');
+    });
+  </script>
 {% endblock %}

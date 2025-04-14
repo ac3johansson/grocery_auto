@@ -6,3 +6,4 @@ class User(db.Model):
     username = db.Column(db.String(100), unique=True, nullable=False)
     #email = db.Column(db.String(120), unique=True, nullable=False)
     recipes = db.relationship('Recipe', backref='user', lazy=True, cascade="all, delete-orphan")  # One-to-Many
+    plans = db.relationship('Plan', backref='user',lazy=True, cascade="all, delete-orphan")

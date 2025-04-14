@@ -8,5 +8,6 @@ class Recipe(db.Model):
     tag = db.Column(db.String(50), nullable=False)
     #tag = db.relationship('Tag', backref='recipe', lazy=True, cascade="all, delete-orphan")
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
+    #plan_id = db.Column(db.Integer(), db.ForeignKey('plan.id', ondelete="CASCADE"), nullable=True)
+    
     ingredients = db.relationship('Ingredient', backref='recipe', lazy=True, cascade="all, delete-orphan")
-

@@ -1,68 +1,223 @@
 {% extends 'base.html' %}
 
-{% block head %} 
-<title></title>
+{% block head %}
+<title>Recipe App</title>
+<style>
+  /* Custom fixes for alignment */
+  .equal-height-cards {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch; /* Make cards equal height */
+  }
+  
+  .card-body {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .card-content {
+    flex-grow: 1; /* Push footer to bottom */
+  }
+  
+  .table-fixed {
+    table-layout: fixed;
+  }
+  
+  .table-fixed th, .table-fixed td {
+    width: 33%; /* Equal column width */
+    text-align: center;
+  }
+</style>
 {% endblock %}
 
-{% block body %} 
-<div class="content">
-    <h1></h1>
+{% block body %}
+<div class="container mt-4">
+  <h1 class="text-center mb-4">Månadsplan</h1>
 
-    <!-- Makes it possible to show flash() messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class=flashes>
+  <div class="d-flex justify-content-between align-items-center mt-4">
+    <!-- Left button -->
+    <a href="{{ prev_url or url_for('routes.index') }}" class="btn btn-secondary">Tillbaka</a>
+
+    <!-- Flash message space (always reserved even if no message) -->
+    <div class="col-md-8">
+      <div class="text-center flex-grow-1 ">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
             {% for category, message in messages %}
-                <li class="{{ category }}">{{ message }}</li>
+              <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} text-center">
+                {{ message }}
+              </div>
             {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-    <form  method="POST">
-        <input type="text" name="name" placeholder="Plannamn" required>
-        <input type="text" name="link" placeholder="Länk" required>
-        <select name="tag" placeholder="Tag" required>
-            <option value="" disabled selected>Tag</option>
-            <option value="storkok">Storkok</option>
-            <option value="vardag">Vardag</option>
-            <option value="helg">Helg</option>
-        </select>
-        <input type="text" name="tag" placeholder="Tag" required>
-        <button type="submit" name="action" value="search">Sök</button>
+          {% else %}
+            <!-- Invisible placeholder to reserve space -->
+            <div class="invisible alert mb-0 py-2 px-3 d-inline-block">Placeholder</div>
+          {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+
+    <!-- Right button -->
+    <form method="POST">
+      <a href="/user/{{user.id}}/planbank/{{plan.id}}/planmaker/ingredients" class="btn btn-primary">Fortsätt</a>
     </form>
-    {% if plans|length < 1 %}
-    <h4 style="text-align: center">Inga tillagda recept</h4>
-    {% else %}
-    <table border="1">
-        <tr>
-            <th>Namn</th>
-            <th>Skapad</th>
-            <th>Åtgärder</th>
-        </tr>
-        {% for plan in plans %}
-            <tr>
-                <td>{{ plan.name }}</td>
-                <td>{{ plan.date_created }}</td>
-                <td>
-                    <!-- <a href="/user/{{user.id}}/planbank">Ingredienser</a>
-                    <br>
-                    <form action="/user/{{user.id}}/planbank" method="POST">
-                        <input type="hidden" name="plan_id" value="{{ plan.id }}">
-                        <button type="submit" name="action" value="remove">Ta bort</button>
-                    </form>
-                    <br> -->
-                    <a href="/edit/{{plan.id}}">Redigera plan</a>
-                    <form action="/user/{{user.id}}/planbank" method="POST">
-                        <input type="hidden" name="plan_id" value="{{ plan.id }}">
-                        <button type="submit" name="action" value="remove">Ta bort</button>
-                    </form>
-                </td>
-            </tr> 
-        {% endfor %}
-    </table>
-    {% endif %}
+  </div>
 
-    <a href="{{ prev_url or url_for('routes.index') }}" class="btn">Tillbaka</a>
+  <div class="row equal-height-cards">
+    <!-- Search Column -->
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <h2 class="card-title">Sök Recept</h2>
+          <div class="card-content">
+            <form method="POST" class="mb-3">
+              <div class="mb-2">
+                <input type="text" class="form-control text-center" name="recipe_name" value="{{ recipe_name if recipe_name else '' }}" placeholder="Receptnamn">
+              </div>
+              <div class="mb-2">
+                <input type="text" class="form-control text-center" name="recipe_ingredient" value="{{ recipe_ingredient if recipe_ingredient else '' }}" placeholder="Ingrediens">
+              </div>
+              <div class="mb-2">
+                <select class="form-select text-center" name="tag_search">
+                  <option value="" {% if not recipe_tag_search %}selected{% endif %}>Ingen tag</option>
+                  <option value="storkok" {% if recipe_tag_search == 'storkok' %}selected{% endif %}>Storkok</option>
+                  <option value="vardag" {% if recipe_tag_search == 'vardag' %}selected{% endif %}>Vardag</option>
+                  <option value="helg" {% if recipe_tag_search == 'helg' %}selected{% endif %}>Helg</option>
+                </select>
+              </div>
+              <button type="submit" name="action" value="search" class="btn btn-primary w-100">Sök</button>
+            </form>
+            
+            {% if recipes_search|length >= 1 %}
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead class="table-light">
+                  <tr>
+                    <th class="col-10">Namn</th>
+                    <th class="col-2">Åtgärd</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for recipe in recipes_search %}
+                  <tr>
+                    <td class="col-10">{{ recipe.name }}</td>
+                    <td class="col-2">
+                      <form action="/user/{{user.id}}/planbank/{{plan.id}}/planmaker" method="POST" class="d-inline">
+                        <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+                        <button type="submit" name="action" value="add" 
+                          class="btn btn-success btn-sm">
+                          +
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <p class="text-muted mt-3">Inga recept hittade</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Random Recipe Column -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+            <h2 class="card-title">Slumpa Recept</h2>
+            <div class="card-content">
+                <form method="POST" class="mb-3">
+                <div class="mb-3">
+                  <select class="form-select text-center" name="tag_random">
+                    <option value="" {% if not recipe_tag_random %}selected{% endif %}>Ingen tag</option>
+                    <option value="storkok" {% if recipe_tag_random == 'storkok' %}selected{% endif %}>Storkok</option>
+                    <option value="vardag" {% if recipe_tag_random == 'vardag' %}selected{% endif %}>Vardag</option>
+                    <option value="helg" {% if recipe_tag_random == 'helg' %}selected{% endif %}>Helg</option>
+                  </select>
+                </div>
+                <button type="submit" name="action" value="random" class="btn btn-primary w-100">Slumpa</button>
+                </form>
+                
+                {% if recipes_random|length >= 1 %}
+                <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                    <tr>
+                        <th class="col-10"> Namn</th>
+                        <th class="col-2">Åtgärd</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for recipe in recipes_random %}
+                    <tr>
+                        <td class="col-10">{{ recipe.name }}</td>
+                        <td class="col-2" >
+                          <form action="/user/{{user.id}}/planbank/{{plan.id}}/planmaker" method="POST" class="d-inline">
+                            <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+                            <button type="submit" name="action" value="add" 
+                              class="btn btn-success btn-sm">
+                              +
+                            </button>
+                          </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+                {% else %}
+                <p class="text-muted mt-3">Slumpa fram recept</p>
+                {% endif %}
+            </div>
+            </div>
+        </div>
+        </div>
+
+    <!-- Shopping list Column -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <h2 class="card-title">Recept Inköpslista</h2>
+            <div class="card-content">
+              {% if recipes_plan %}
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="col-8">Namn</th>
+                      <th class="col-4">Åtgärd</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for recipe in recipes_plan %}
+                    <tr>
+                      <td class="col-9">{{ recipe.name }}</td>
+                      <td class="col-3">
+                        <div class="d-flex gap-2">  <!-- Flex container with spacing -->
+                          <form method="POST">
+                            <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+                            <button type="submit" name="action" value="edit_recipe" class="btn btn-warning btn-sm">✏️</button>
+                          </form>
+                          <form method="POST">
+                            <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+                            <button type="submit" name="action" value="remove_recipe" class="btn btn-danger btn-sm">🗑️</button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% else %}
+              <p class="text-muted mt-3">Inga recept i inköpslistan ännu</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
 </div>
-
 {% endblock %}

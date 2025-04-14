@@ -114,24 +114,85 @@ def planmaker(user_id, plan_id):
     if 'prev_url' not in session:  # Store previous page URL if not already set
         session['prev_url'] = request.referrer
 
-    recipes = Recipe.query.filter_by(user_id=user.id).all()  # Get only this user's recipes
+    # Get user and plan (with 404 handling)
+    user = User.query.get_or_404(user_id)
+    plan = Plan.query.get_or_404(plan_id)
 
     if request.method == 'POST':
+        #Initalize passing strings 
+        recipe_name = None
+        recipe_ingredient = None
+        recipe_tag_search = None
+        recipe_tag_random = None
+
+        #Initalize search and random lists
+        found_recipes = []
+        randomized_recipes = []
+
+        #POST Requests
         value = request.form.get('action')
+
         if value == "search":
-            recipe_name = request.form['name']
-            recipe_ingredient = request.form['ingredient']
-            recipe_tag = request.form['tag']
-            return find_recipes(user_id, recipe_name, recipe_ingredient, recipe_tag)
-        elif value == "remove":
-            return remove_plan(user_id, request.form.get('plan_id'))
+            recipe_name = request.form.get('recipe_name', '')
+            recipe_ingredient = request.form.get('recipe_ingredient', '')
+            recipe_tag_search = request.form.get('tag_search', '')
+            found_recipes = find_recipes(user_id, recipe_name, recipe_ingredient, recipe_tag_search) #Returns list of found recipes using search function
+        elif value == "random":
+            recipe_tag_random = request.form.get('tag_random', '')
+            randomized_recipes = random_recipes(user_id, recipe_tag_random) #Returns list of randomized recipes using random function
+        elif value == "add":
+            recipe_id = request.form.get('recipe_id')
+            add_to_plan(plan, recipe_id)
+            found_recipes = find_recipes(user_id, recipe_name, recipe_ingredient, recipe_tag_search) #Returns list of found recipes using search function
+        elif value == "remove_recipe":
+            recipe_id = request.form.get('recipe_id')
+            remove_from_plan(plan, recipe_id)
+        elif value == "edit_recipe":
+            pass
         else:
-            return redirect(f'/user/{user_id}/recipebank')
+            pass
+
+        recipes_plan = plan.recipes  # Get only this plan's recipes
+
+        return render_template(
+            'planmaker.html', 
+            #lists
+            recipes_search=found_recipes, 
+            recipes_random=randomized_recipes, 
+            recipes_plan=recipes_plan,
+            #strings
+            recipe_name=recipe_name,
+            recipe_ingredient=recipe_ingredient,
+            recipe_tag_search=recipe_tag_search,
+            recipe_tag_random=recipe_tag_random,
+            #objects
+            user=user,
+            plan=plan
+        )
 
     else:
-        user = User.query.get(user_id) # Find the user by ID
-        if not user:
-            return "User not found", 404 # Handle invalid user
+        recipes_plan = plan.recipes  # Get only this plan's recipes
+        return render_template(
+            'planmaker.html',
+            
+            #objects
+            user=user,
+            plan=plan,
+            
+            #lists
+            recipes_plan=recipes_plan
+        )
 
-        plans = Plan.query.filter_by(user_id=user.id).all()  # Get only this user's plans
-        return render_template('planmaker.html', plans=plans, user=user)
+#HÄR ÄR JAG
+#Planmaker route 
+@routes.route('/user/<int:user_id>/planbank/<int:plan_id>/planmaker/ingredients', methods=['GET', 'POST'])
+def planmaker_ingredients(user_id, plan_id):
+    if 'prev_url' not in session:  # Store previous page URL if not already set
+        session['prev_url'] = request.referrer
+
+    # Get user and plan (with 404 handling)
+    user = User.query.get_or_404(user_id)
+    plan = Plan.query.get_or_404(plan_id)
+
+    ingredients = generate_plan_ingredients(plan)  # Get only this user's recipes
+    return render_template('planmaker_ingredients.html', ingredients=ingredients, recipe=None, plan=plan, user=user) 

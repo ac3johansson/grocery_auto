@@ -10,4 +10,4 @@ class Ingredient(db.Model):
 
     unitsWeight = {'g':1, 'hg':100, 'kg':1000} #Valid weight units
     unitsVolume = {'krm':1, 'tsk':5, 'msk':15, 'ml':1, 'cl':10, 'dl':100, 'l':1000} #Valid volume units
-    unitsDistinct = ('st', 'port')
+    unitsDistinct = ('st', 'port', 'paket')

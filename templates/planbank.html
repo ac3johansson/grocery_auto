@@ -1,68 +1,91 @@
 {% extends 'base.html' %}
 
 {% block head %} 
-<title></title>
+<title>Månadsplaner</title>
 {% endblock %}
 
 {% block body %} 
-<div class="content">
-    <h1>Dina månadsplaner</h1>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="text-center mb-4">Dina månadsplaner</h1>
 
-    <!-- Makes it possible to show flash() messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class=flashes>
-            {% for category, message in messages %}
-                <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-    <form  method="POST">
-        <input type="text" name="name" placeholder="Plannamn" required>
-        <!-- <input type="text" name="link" placeholder="Länk" required>
-        <select name="tag" placeholder="Tag" required>
-            <option value="" disabled selected>Tag</option>
-            <option value="storkok">Storkok</option>
-            <option value="vardag">Vardag</option>
-            <option value="helg">Helg</option>
-        </select> -->
-        <!-- <input type="text" name="tag" placeholder="Tag" required> -->
-        <button type="submit" name="action" value="add">Lägg till</button>
-    </form>
-    {% if plans|length < 1 %}
-    <h4 style="text-align: center">Inga tillagda månadsplaner</h4>
-    {% else %}
-    <table border="1">
-        <tr>
-            <th>Namn</th>
-            <th>Skapad</th>
-            <th>Åtgärder</th>
-        </tr>
-        {% for plan in plans %}
-            <tr>
-                <td>{{ plan.name }}</td>
-                <td>{{ plan.date_created }}</td>
-                <td>
-                    <!-- <a href="/user/{{user.id}}/planbank">Ingredienser</a>
-                    <br>
-                    <form action="/user/{{user.id}}/planbank" method="POST">
-                        <input type="hidden" name="plan_id" value="{{ plan.id }}">
-                        <button type="submit" name="action" value="remove">Ta bort</button>
-                    </form>
-                    <br> -->
-                    <a href="/user/{{user.id}}/planbank/{{plan.id}}/planmaker">Redigera plan</a>
-                    <form action="/user/{{user.id}}/planbank" method="POST">
-                        <input type="hidden" name="plan_id" value="{{ plan.id }}">
-                        <button type="submit" name="action" value="remove">Ta bort</button>
-                    </form>
-                </td>
-            </tr> 
-        {% endfor %}
-    </table>
-    {% endif %}
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-4">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} text-center">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
 
-    <a href="{{ prev_url or url_for('routes.index') }}" class="btn">Tillbaka</a>
+            <!-- Add Plan Form -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="POST" class="row g-3 align-items-center">
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" name="name" placeholder="Plannamn" required>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" name="action" value="add" class="btn btn-primary w-100">
+                                Lägg till
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Plans Table -->
+            {% if plans|length < 1 %}
+                <div class="alert alert-info text-center">
+                    Inga tillagda månadsplaner
+                </div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Namn</th>
+                                <th>Skapad</th>
+                                <th>Åtgärder</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for plan in plans %}
+                                <tr>
+                                    <td>{{ plan.name }}</td>
+                                    <td>{{ plan.date_created.strftime('%Y-%m-%d') if plan.date_created else 'N/A' }}</td>
+                                    <td class="d-flex gap-2">
+                                        <a href="/user/{{user.id}}/planbank/{{plan.id}}/planmaker" 
+                                           class="btn btn-sm btn-warning">
+                                            Redigera
+                                        </a>
+                                        <form action="/user/{{user.id}}/planbank" method="POST" class="d-inline">
+                                            <input type="hidden" name="plan_id" value="{{ plan.id }}">
+                                            <button type="submit" name="action" value="remove" 
+                                                    class="btn btn-sm btn-danger">
+                                                Ta bort
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr> 
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+
+            <!-- Back Button -->
+            <div class="text-center mt-4">
+                <a href="{{ prev_url or url_for('routes.index') }}" class="btn btn-secondary">
+                    Tillbaka
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
-
 {% endblock %}

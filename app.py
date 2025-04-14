@@ -2,7 +2,9 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 #from config import Config #Config file not created
 from models import db
+from models import association
 import os
+#from flask_migrate import Migrate
 
 
 
@@ -18,7 +20,11 @@ def create_app():
 
     #db = SQLAlchemy(app)
     db.init_app(app)  # Initialize database
+    #migrate = Migrate(app, db)
+    #from models import User, Recipe, Plan, Ingredient, Tag
+
     # Register Blueprint and import routes Blueprint
+
     from routes.routes import routes
     app.register_blueprint(routes)
 

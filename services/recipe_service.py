@@ -10,7 +10,8 @@ def add_recipe(user_id, recipe_name, recipe_link, recipe_tag):
             db.session.add(new_recipe)
             db.session.commit()
             flash('Receptet tillagt', 'success')
-        except:
+        except Exception as e:
+            db.session.rollback()  # Important to prevent session corruption
             flash('Kunde inte lägga till recept', 'error')
     else:
         flash('Kunde inte lägga till recept', 'error')

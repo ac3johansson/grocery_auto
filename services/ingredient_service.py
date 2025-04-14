@@ -8,6 +8,7 @@ def add_ingredient(user_id, recipe_id, ingredient_name, amount, unit):
     recipe = Recipe.query.get(recipe_id)
     input_check = True
     # try:
+    ingredient_name = str(ingredient_name).strip().lower()
     unit = str(unit).strip().lower()
     if (unit not in Ingredient.unitsVolume.keys() and unit not in Ingredient.unitsWeight.keys() and unit not in Ingredient.unitsDistinct):
         input_check = False
@@ -25,7 +26,7 @@ def add_ingredient(user_id, recipe_id, ingredient_name, amount, unit):
         input_check = False
         flash("Mängden måste vara ett nummer")
     if input_check:
-        new_ingredient = Ingredient.query.filter_by(name=ingredient_name).first()
+        new_ingredient = Ingredient.query.filter_by(name=ingredient_name, recipe_id=recipe_id).first()
         if not new_ingredient:
             new_ingredient = Ingredient(name=ingredient_name, amount=amount, unit=unit, recipe_id=recipe_id)
             db.session.add(new_ingredient)
@@ -74,8 +75,6 @@ def change_unit(user_id, recipe_id, newUnit, ingredient_id):
         flash("Enhet uppdaterad")
     except:
         flash("Kunde inte ändra enhet")
-
-
     return redirect(f'/user/{user_id}/recipebank/{recipe_id}/ingredients')
     # if newUnit not in (Ingredient.unitsWeight.keys() or Ingredient.unitsVolume.keys() or Ingredient.unitsDistinct):
     #     flash("Enheten finns ej")
