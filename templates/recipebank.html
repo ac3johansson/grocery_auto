@@ -2,13 +2,31 @@
 
 {% block head %} 
 <title>Dina Recept</title>
+<style>
+    .highlighted {
+        background-color: #fff3cd; /* Bootstrap warning background */
+        border-left: 5px solid #ffc107;
+    }
+</style>
+<!-- Scrolls to highlighted recipe -->
+<script> 
+    window.onload = function() {
+        const highlighted = document.querySelector('.highlighted');
+        if (highlighted) {
+            highlighted.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    };
+</script>
 {% endblock %}
 
 {% block body %} 
 <div class="container mt-4">
+    <div class="d-flex justify-content-center align-items-center mb-4 gap-3 flex-wrap">
+        <h1 class="mb-0 text-center">Dina recept</h1>
+        <a href="{{ url_for('routes.index') }}" class="btn btn-outline-primary">🏠</a>
+      </div>
     <div class="row justify-content-center">
         <div class="col-md-10">
-            <h1 class="text-center mb-4">Dina recept</h1>
 
             <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -68,7 +86,7 @@
                         </thead>
                         <tbody>
                             {% for recipe in recipes %}
-                                <tr>
+                                <tr id="recipe-{{ recipe.id }}" class="{% if highlight_id == recipe.id|string %}highlighted{% endif %}">
                                     <td>{{ recipe.name }}</td>
                                     <td>
                                         <a href="{{ 'https://' + recipe.link if not recipe.link.startswith('http') else recipe.link }}" 
@@ -84,16 +102,27 @@
                                                class="btn btn-sm btn-info">
                                                 Ingredienser
                                             </a>
-                                            <form action="/user/{{user.id}}/recipebank" method="POST" class="d-inline">
-                                                <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
-                                                <button type="submit" name="action" value="remove" 
-                                                        class="btn btn-sm btn-danger">
-                                                    Ta bort
+                                            <form id="submit-form" method="POST" action="">
+                                                <!-- This hidden input will hold the selected IDs as a comma-separated string -->
+                                                <!-- <input type="hidden" name="selected_ingredients" id="selected-ingredients"> finns redan nedan-->
+                                                <button 
+                                                    type="button" 
+                                                    onclick="openModal('{{ recipe.name }}', '{{ recipe.link }}', '{{ recipe.tag }}', '{{ recipe.id}}')" 
+                                                    class="btn btn-sm btn-warning">
+                                                    ✏️
                                                 </button>
                                             </form>
-                                            <a href="/edit/{{recipe.id}}" class="btn btn-sm btn-warning">
-                                                Redigera
-                                            </a>
+                                            <form action="/user/{{user.id}}/recipebank" method="POST" class="d-inline">
+                                                <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+                                                <button 
+                                                    type="submit" 
+                                                    name="action" 
+                                                    value="remove" 
+                                                    class="btn btn-sm btn-danger">
+                                                    🗑️
+                                                </button>
+                                            </form>
+
                                         </div>
                                     </td>
                                 </tr> 
@@ -105,11 +134,92 @@
 
             <!-- Back Button -->
             <div class="text-center mt-4">
-                <a href="{{ prev_url or url_for('routes.index') }}" class="btn btn-secondary">
+                <a href="{{ url_for('routes.go_back') }}" class="btn btn-secondary">
                     Tillbaka
                 </a>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div id="editRecipeModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h5 class="modal-title">Ändra recept information</h5>
+      <form method="POST" action="/user/{{user.id}}/recipebank">
+        <div class="mb-3">
+            <label for="recipeName" class="form-label">Namn</label>
+            <input type="text" class="form-control" id="recipeName" name="name" value="">
+        </div>
+        <div class="mb-3">
+            <label for="recipeLink" class="form-label">Länk</label>
+            <input type="text" class="form-control" id="recipeLink" name="link" value="">
+        </div>
+        <div class="mb-3">
+            <label for="recipeTag" class="form-label">Tag</label>
+            <select class="form-select" name="tag" required>
+                <option value="storkok">Storkok</option>
+                <option value="vardag">Vardag</option>
+                <option value="helg">Helg</option>
+            </select>
+        </div>
+        <input type="hidden" id="recipeId" name="recipe_id" value="">
+        <button name="action" value="edit" type="submit" class="btn btn-sm btn-primary w-80">Ändra</button>
+        <button type="button" onclick="closeModal()" class="btn btn-sm btn-secondary w-80">Avbryt</button>
+      </form>
+    </div>
+</div>
+<style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+  
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      width: 300px;
+      border-radius: 8px;
+      position: relative;
+    }
+  
+    .close {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+</style>
+<script>
+function openModal(name = "", link = "", tag = "", id = "") {
+    document.getElementById("editRecipeModal").style.display = "block";
+
+    document.getElementById('recipeName').value = name;
+    document.getElementById('recipeLink').value = link;
+    document.getElementById('recipeId').value = id;
+    // For tag, find the select and set value
+    const tagSelect = document.querySelector('#editRecipeModal select[name="tag"]');
+    tagSelect.value = tag.trim().toLowerCase();
+}
+  
+    function closeModal() {
+      document.getElementById("editRecipeModal").style.display = "none";
+    }
+  
+    // Optional: Close if clicked outside the modal
+    window.onclick = function(event) {
+      const modal = document.getElementById("editRecipeModal");
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    };
+</script>
+
 {% endblock %}

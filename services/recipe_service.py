@@ -25,11 +25,13 @@ def remove_recipe(user_id, recipe_id):
         flash("Receptet kunde ej tas bort")
     return redirect(f'/user/{user_id}/recipebank')
 
-def find_by_name(user_id, recipe_name):
-    pass
-
-def find_by_ingredient(user_id, recipe_ingredient):
-    pass
-
-def find_by_tag(user_id, recipe_tag):
-    pass
+def edit_recipe(new_name, new_link, new_tag, recipe_id):
+    try:
+        recipe = Recipe.query.get(recipe_id)
+        recipe.name = new_name
+        recipe.link = new_link
+        recipe.tag = new_tag
+        db.session.commit()
+        flash('Receptet redigerad', 'success')
+    except Exception as e:
+        flash('Receptet kunde ej ändras', 'warning')

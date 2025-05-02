@@ -16,9 +16,12 @@
 
 {% block body %} 
 <div class="container mt-4">
+    <div class="d-flex justify-content-center align-items-center mb-4 gap-3 flex-wrap">
+        <h1 class="mb-0 text-center">Ingredienser</h1>
+        <a href="{{ url_for('routes.index') }}" class="btn btn-outline-primary">🏠</a>
+      </div>
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <h1 class="text-center mb-4">Ingredienser</h1>
 
             <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -89,26 +92,23 @@
                                     <td>{{ ingredient.amount }}{{ ingredient.unit }}</td>
                                     <td>
                                         <div class="action-buttons">
-                                            <form action="/user/{{user.id}}/recipebank/{{recipe.id}}/ingredients" method="POST" class="d-inline">
-                                                <input type="hidden" name="ingredient_id" value="{{ ingredient.id }}">
-                                                <select class="form-select form-select-sm" name="action" onchange="this.form.submit()">
-                                                    <option value="" disabled selected>Ändra enhet</option>
-                                                    <option value="paket">paket</option>  
-                                                    <option value="port">port</option>   
-                                                    <option value="st">st</option>
-                                                    <option value="g">g</option>
-                                                    <option value="hg">hg</option>
-                                                    <option value="kg">kg</option>
-                                                    <option value="ml">ml</option>
-                                                    <option value="cl">cl</option>
-                                                    <option value="dl">dl</option>
-                                                    <option value="l">l</option>
-                                                </select>
+                                            <form id="submit-form" method="POST" action="">
+                                                <!-- <input type="hidden" name="ingredient_id" value="{{ ingredient.id }}"> -->
+                                                <button 
+                                                    type="button" 
+                                                    onclick="openModal('{{ ingredient.name }}', '{{ ingredient.amount }}', '{{ ingredient.unit }}', '{{ ingredient.id}}')" 
+                                                    class="btn btn-sm btn-warning">
+                                                    ✏️
+                                                </button>
                                             </form>
                                             <form action="/user/{{user.id}}/recipebank/{{recipe.id}}/ingredients" method="POST" class="d-inline">
                                                 <input type="hidden" name="ingredient_id" value="{{ ingredient.id }}">
-                                                <button type="submit" name="action" value="remove" class="btn btn-sm btn-danger">
-                                                    Ta bort
+                                                <button 
+                                                    type="submit" 
+                                                    name="action" 
+                                                    value="remove" 
+                                                    class="btn btn-sm btn-danger">
+                                                    🗑️
                                                 </button>
                                             </form>
                                         </div>
@@ -122,13 +122,99 @@
 
             <!-- Back Button -->
             <div class="text-center">
-                <a href="{{ prev_url or url_for('routes.index') }}" class="btn btn-secondary">
+                <a href="{{ url_for('routes.go_back') }}" class="btn btn-secondary">
                     Tillbaka
                 </a>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div id="editIngredientModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h5 class="modal-title">Ändra ingrediens</h5>
+      <form method="POST" action="/user/{{user.id}}/recipebank/{{recipe.id}}/ingredients">
+        <div class="mb-3">
+            <label for="ingredientName" class="form-label">Namn</label>
+            <input type="text" class="form-control" id="ingredientName" name="name" value="">
+        </div>
+        <div class="mb-3">
+            <label for="ingredientAmount" class="form-label">Mängd</label>
+            <input type="text" class="form-control" id="ingredientAmount" name="amount" value="">
+        </div>
+        <div class="mb-3">
+            <label for="ingredientUnit" class="form-label">Enhet</label>
+            <select class="form-select" name="unit" required>
+                <option value="paket">paket</option>  
+                <option value="port">port</option>   
+                <option value="st">st</option>
+                <option value="g">g</option>
+                <option value="hg">hg</option>
+                <option value="kg">kg</option>
+                <option value="ml">ml</option>
+                <option value="cl">cl</option>
+                <option value="dl">dl</option>
+                <option value="l">l</option>
+            </select>
+         </div>
+        <input type="hidden" id="ingredientId" name="ingredient_id" value="">
+        <button name="action" value="edit" type="submit" class="btn btn-sm btn-primary w-80">Ändra</button>
+        <button type="button" onclick="closeModal()" class="btn btn-sm btn-secondary w-80">Avbryt</button>
+      </form>
+    </div>
+</div>
+<style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+  
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      width: 300px;
+      border-radius: 8px;
+      position: relative;
+    }
+  
+    .close {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+</style>
+<script>
+function openModal(name = "", amount = "", unit = "", id = "") {
+    document.getElementById("editIngredientModal").style.display = "block";
+    document.getElementById('ingredientName').value = name;
+    document.getElementById('ingredientAmount').value = amount;
+    document.getElementById('ingredientId').value = id;
+    // For tag, find the select and set value
+    const tagSelect = document.querySelector('#editIngredientModal select[name="unit"]');
+    tagSelect.value = unit.trim().toLowerCase();
+}
+  
+    function closeModal() {
+      document.getElementById("editIngredientModal").style.display = "none";
+    }
+  
+    // Optional: Close if clicked outside the modal
+    window.onclick = function(event) {
+      const modal = document.getElementById("editIngredientModal");
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    };
+</script>
 
 <script>
     // Initialize select elements with proper width

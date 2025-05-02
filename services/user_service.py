@@ -31,6 +31,23 @@ def remove_user(username):
     except:
         flash("Användaren kunde ej raderas", "error")
     return redirect('/')
+
+def edit_user(user_id, new_username):
+    user = User.query.get(user_id)
+    old_username = user.username
+    if user and new_username:
+        try:
+            user.username = new_username
+            db.session.commit()
+            flash(f'Användarnamnet ändrades från {old_username} till {new_username}', 'success' )
+        except Exception as e:
+            user.name = old_username
+            flash('Kunde ej ändra användarnamn', 'warning')
+    elif user:
+        flash(f'Det nya användarnamnet {new_username} är ej giligt', 'warning')
+    else:
+        flash(f'Användaren med namnet {old_username} finns ej', 'warning')
+    
     
 
 

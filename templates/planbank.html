@@ -6,9 +6,12 @@
 
 {% block body %} 
 <div class="container mt-4">
+    <div class="d-flex justify-content-center align-items-center mb-4 gap-3 flex-wrap">
+        <h1 class="mb-0 text-center">Dina månadsplaner</h1>
+        <a href="{{ url_for('routes.index') }}" class="btn btn-outline-primary">🏠</a>
+      </div>
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <h1 class="text-center mb-4">Dina månadsplaner</h1>
 
             <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -81,7 +84,7 @@
 
             <!-- Back Button -->
             <div class="text-center mt-4">
-                <a href="{{ prev_url or url_for('routes.index') }}" class="btn btn-secondary">
+                <a href="{{ url_for('routes.go_back')  }}" class="btn btn-secondary">
                     Tillbaka
                 </a>
             </div>

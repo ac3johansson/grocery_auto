@@ -11,4 +11,4 @@ class Plan(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
     
     recipes = db.relationship('Recipe', secondary=association.plan_recipe_association, backref='plans', lazy=True)
-    #ingredients = db.relationship('Recipe', secondary=association.plan_ingredient_association, backref='plans', lazy=True)
+    ingredients = db.relationship('PlanIngredient', backref='plan', lazy=True, cascade="all, delete-orphan")

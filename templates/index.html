@@ -65,9 +65,14 @@
                                             <a href="/user/{{user.id}}/planbank" class="btn btn-sm btn-primary">
                                                 Månadsplan
                                             </a>
-                                            <a href="/user/{{user.id}}/edit" class="btn btn-sm btn-warning">
-                                                Redigera
-                                            </a>
+                                            <form id="submit-form" method="POST" action="">
+                                                <button 
+                                                    type="button" 
+                                                    onclick="openModal('{{ user.name }}', '{{ user.id}}')" 
+                                                    class="btn btn-sm btn-warning w-100">
+                                                    Redigera
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr> 
@@ -95,4 +100,70 @@
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div id="editUserModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h5 class="modal-title">Ändra användarnamn</h5>
+      <form method="POST" action="/">
+        <div class="mb-3">
+            <!-- <label for="username" class="form-label">Användarnamn</label> -->
+            <input type="text" class="form-control" id="username" name="name" value="">
+        </div>
+        <input type="hidden" id="userId" name="user_id" value="">
+        <button name="action" value="edit" type="submit" class="btn btn-sm btn-primary w-80">Ändra</button>
+        <button type="button" onclick="closeModal()" class="btn btn-sm btn-secondary w-80">Avbryt</button>
+      </form>
+    </div>
+</div>
+
+<style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+  
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      width: 300px;
+      border-radius: 8px;
+      position: relative;
+    }
+  
+    .close {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+</style>
+<script>
+    function openModal(name = "", id = "") {
+        document.getElementById("editUserModal").style.display = "block";
+
+        document.getElementById('username').value = name;
+        document.getElementById('userId').value = id;
+
+    }
+  
+    function closeModal() {
+      document.getElementById("editUserModal").style.display = "none";
+    }
+  
+    // Optional: Close if clicked outside the modal
+    window.onclick = function(event) {
+      const modal = document.getElementById("editUserModal");
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    };
+</script>
 {% endblock %}
